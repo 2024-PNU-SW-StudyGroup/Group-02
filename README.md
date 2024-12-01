@@ -50,6 +50,7 @@ project_root/
 │   └── main.py                  # 프로젝트 실행 진입점
 ├── requirements.txt             # 프로젝트 의존성 관리
 └── README.md                    # 프로젝트 설명 파일
+```
 
 ## **설치 및 실행 방법**
 
@@ -66,7 +67,7 @@ Python 3.8+가 설치되어 있어야 합니다.
   ```bash
   pip install -r requirements.txt
   ```
-  
+
 ### **2. 실행**
   ```bash
   python src/main.py
