@@ -1,6 +1,6 @@
-from .base_observer import Observer
+from .base_observer import UIObserver
 
-class UIUpdateObserver(Observer):
+class UIUpdateObserver(UIObserver):
     def __init__(self, visualization):
         self.visualization = visualization
         

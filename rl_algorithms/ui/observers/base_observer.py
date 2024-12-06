@@ -1,6 +1,7 @@
+# ui/observers/base_observer.py
 from abc import ABC, abstractmethod
 
-class Observer(ABC):
+class UIObserver(ABC):
     @abstractmethod
-    def update(self, event_type: str, data: dict):
+    def update(self, event_type: str, data: dict = None):
         pass
