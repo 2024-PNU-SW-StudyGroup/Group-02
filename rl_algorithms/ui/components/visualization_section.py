@@ -1,53 +1,73 @@
+# ui/components/visualization_section.py
 import pygame
 
 class VisualizationSection:
-    def __init__(self, screen, button_width=280, button_height=40, left_offset=20, top_offset=20):
-        self.screen = screen
-        self.button_width = button_width
-        self.button_height = button_height
-        self.left = left_offset
-        self.top = top_offset
-        self.font = pygame.font.Font(None, 24)
+    def __init__(self, viz, left, top, width, font, colors):
+        self.viz = viz
+        self.left = left
+        self.top = top
+        self.width = width
+        self.font = font
+        self.BLACK = colors['BLACK']
+        self.WHITE = colors['WHITE']
+        self.GREEN = colors['GREEN']
 
-        self.title = {'text': 'Toggle Visualization', 'rect': pygame.Rect(
-            self.left, self.top, self.button_width, self.button_height)}
+        self.title_rect = pygame.Rect(left+20, top+20, width, 40)
+
         self.buttons = [
-            {'text': 'Toggle Rewards', 'rect': pygame.Rect(
-                self.left, self.top + 50, self.button_width, self.button_height), 'state': True},
-            {'text': 'Toggle State Values', 'rect': pygame.Rect(
-                self.left, self.top + 100, self.button_width, self.button_height), 'state': False},
-            {'text': 'Toggle Action Values', 'rect': pygame.Rect(
-                self.left, self.top + 150, self.button_width, self.button_height), 'state': False},
-            {'text': 'Toggle Policy Arrows', 'rect': pygame.Rect(
-                self.left, self.top + 200, self.button_width, self.button_height), 'state': False},
+            {'text': 'Toggle Rewards', 'rect': pygame.Rect(left+20, top+70, width, 40), 'state': True, 'visible': True},
+            {'text': 'Toggle State Values', 'rect': pygame.Rect(left+20, top+120, width, 40), 'state': False, 'visible': False},
+            {'text': 'Toggle Action Values', 'rect': pygame.Rect(left+20, top+170, width, 40), 'state': False, 'visible': False},
+            {'text': 'Toggle Policy Arrows', 'rect': pygame.Rect(left+20, top+220, width, 40), 'state': False, 'visible': False},
         ]
 
-    def draw(self, show_rewards, show_state_values, show_action_values, show_policy):
-        pygame.draw.rect(self.screen, (255, 255, 255), self.title['rect'])
-        pygame.draw.rect(self.screen, (0, 0, 0), self.title['rect'], 1)
-        text = self.font.render(self.title['text'], True, (0, 0, 0))
-        text_rect = text.get_rect(center=self.title['rect'].center)
-        self.screen.blit(text, text_rect)
+        self.show_rewards = True
+        self.show_state_values = False
+        self.show_action_values = False
+        self.show_policy = False
 
-        states = [show_rewards, show_state_values, show_action_values, show_policy]
+    def draw(self, screen, window_size, current_alg):
+        # Left edge
+        pygame.draw.line(screen, self.BLACK, (self.left, 0),
+                         (self.left, window_size[1]), 2)
+        # Title
+        pygame.draw.rect(screen, self.WHITE, self.title_rect)
+        text = self.font.render('Toggle Visualization', True, self.BLACK)
+        text_rect = text.get_rect(center=self.title_rect.center)
+        screen.blit(text, text_rect)
+
         for i, button in enumerate(self.buttons):
-            color = (0, 255, 0) if states[i] else (255, 255, 255)
-            pygame.draw.rect(self.screen, color, button['rect'])
-            pygame.draw.rect(self.screen, (0, 0, 0), button['rect'], 1)
-            text = self.font.render(button['text'], True, (0, 0, 0))
+            if i > 0 and current_alg is None:
+                break
+            color = self.GREEN if button['state'] else self.WHITE
+            pygame.draw.rect(screen, color, button['rect'])
+            pygame.draw.rect(screen, self.BLACK, button['rect'], 1)
+            text = self.font.render(button['text'], True, self.BLACK)
             text_rect = text.get_rect(center=button['rect'].center)
-            self.screen.blit(text, text_rect)
+            screen.blit(text, text_rect)
 
-    def handle_click(self, pos, current_state):
+    def handle_click(self, pos, current_alg):
         for i, button in enumerate(self.buttons):
             if button['rect'].collidepoint(pos):
                 button['state'] = not button['state']
-                current_state[i] = button['state']
-                return {'type': button['text'], 'state': button['state']}
-        return None
+                if button['text'] == 'Toggle Rewards':
+                    self.show_rewards = button['state']
+                elif button['text'] == 'Toggle State Values':
+                    self.show_state_values = button['state']
+                elif button['text'] == 'Toggle Action Values':
+                    self.show_action_values = button['state']
+                elif button['text'] == 'Toggle Policy Arrows':
+                    self.show_policy = button['state']
+                
+                self.viz.notify_observers('visualization_changed', {
+                    'type': button['text'],
+                    'state': button['state']
+                })
 
-    def update_visualization(self, viz_type, state):
-        for button in self.buttons:
-            if button['text'] == viz_type:
-                button['state'] = state
-        self.draw(buttons_state= [btn['state'] for btn in self.buttons])
+    def get_states(self):
+        return {
+            'show_rewards': self.show_rewards,
+            'show_state_values': self.show_state_values,
+            'show_action_values': self.show_action_values,
+            'show_policy': self.show_policy
+        }

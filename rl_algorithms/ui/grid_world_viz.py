@@ -1,54 +1,99 @@
-# src/ui/grid_world_viz.py
-
+# ui/grid_world_viz.py
 import pygame
-from ui.components.grid import Grid
+from ui.observers.base_observer import UIObserver
+from ui.observers.ui_update_observer import UIUpdateObserver
 from ui.components.algorithm_section import AlgorithmSection
 from ui.components.visualization_section import VisualizationSection
 from ui.components.control_section import ControlSection
-from ui.observers.ui_observer import UIUpdateObserver
-from core.env.grid_world import GridWorld
-from core.algorithms.policy_iteration import PolicyIteration
-from core.algorithms.value_iteration import ValueIteration
+from ui.components.grid import GridComponent
 
 class GridWorldViz:
     def __init__(self, env, algorithms):
         pygame.init()
+
         self.env = env
         self.algorithms = algorithms
-        self.current_alg = None
 
-        # 화면 설정
+        # Colors
+        self.colors = {
+            'WHITE': (255, 255, 255),
+            'BLACK': (0, 0, 0),
+            'GRAY': (128, 128, 128),
+            'RED': (255, 0, 0),
+            'GREEN': (0, 255, 0),
+            'BLUE': (0, 0, 255)
+        }
+
+        # Font & Cell size
+        self.font = pygame.font.Font(None, 24)
         self.CELL_SIZE = 125
-        screen_width = env.size * self.CELL_SIZE + 300  # 추가 패널 공간
-        screen_height = env.size * self.CELL_SIZE
-        self.screen = pygame.display.set_mode((screen_width, screen_height))
+
+        # Window calculation
+        self.algo_sec_left = env.size * self.CELL_SIZE
+        self.viz_sec_left = self.algo_sec_left + 20 + 280 + 20
+        self.viz_sec_right_edge = self.viz_sec_left + 280 + 40
+
+        self.WINDOW_SIZE = (self.viz_sec_right_edge, env.size * self.CELL_SIZE)
+        self.screen = pygame.display.set_mode(self.WINDOW_SIZE)
         pygame.display.set_caption("GridWorld Visualization")
 
-        # UI 컴포넌트 초기화
-        self.grid = Grid(env, self.screen, self.CELL_SIZE)
-        self.algorithm_section = AlgorithmSection(algorithms, self.screen)
-        self.visualization_section = VisualizationSection(self.screen)
-        self.control_section = ControlSection(self.screen)
-
-        # 옵저버 초기화 및 등록
+        # Observer list
         self.observers = []
-        self.ui_observer = UIUpdateObserver(self)
-        self.add_observer(self.ui_observer)
+        self.add_observer(UIUpdateObserver(self))
 
-    def add_observer(self, observer):
+        # Components 초기화 (algorithm_section를 먼저 초기화)
+        self.algorithm_section = AlgorithmSection(
+            viz=self,
+            left=self.algo_sec_left,
+            top=0,
+            width=280,
+            height=40,
+            algorithms=self.algorithms,
+            font=self.font,
+            colors=self.colors
+        )
+
+        self.visualization_section = VisualizationSection(
+            viz=self,
+            left=self.viz_sec_left,
+            top=0,
+            width=280,
+            font=self.font,
+            colors=self.colors
+        )
+
+        viz_sec_bottom_edge = 20 + len(self.visualization_section.buttons)*50 + 40 + 20
+        self.control_section = ControlSection(
+            viz=self,
+            left=self.viz_sec_left,
+            top=viz_sec_bottom_edge,
+            width=280,
+            font=self.font,
+            colors=self.colors
+        )
+
+        self.grid = GridComponent(
+            viz=self,
+            cell_size=self.CELL_SIZE,
+            font=self.font,
+            colors=self.colors
+        )
+
+        # 모든 컴포넌트 초기화 후 current_alg 설정
+        self.current_alg = None  # 이 때 setter가 호출되어도 algorithm_section가 존재하므로 OK
+    
+    def add_observer(self, observer: UIObserver):
         self.observers.append(observer)
 
-    def remove_observer(self, observer):
+    def remove_observer(self, observer: UIObserver):
         self.observers.remove(observer)
 
-    def notify_observers(self, event_type, data=None):
+    def notify_observers(self, event_type: str, data: dict = None):
         for observer in self.observers:
             observer.update(event_type, data)
 
     def run(self):
         running = True
-        clock = pygame.time.Clock()
-
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -57,97 +102,53 @@ class GridWorldViz:
                     pos = pygame.mouse.get_pos()
                     self.handle_click(pos)
 
-            self.screen.fill((200, 200, 200))  # 배경색
-
-            # 그리드 그리기
-            self.grid.draw(self.current_alg)
-
-            # 알고리즘 섹션 그리기
-            self.algorithm_section.draw(self.current_alg)
-
-            # 시각화 섹션 그리기
-            self.visualization_section.draw(
-                self.visualization_section.show_rewards,
-                self.visualization_section.show_state_values,
-                self.visualization_section.show_action_values,
-                self.visualization_section.show_policy
-            )
-
-            # 제어 섹션 그리기
-            self.control_section.draw(
-                self.env.is_eval_converged,
-                self.env.is_policy_converged,
-                self.env.evaluation_steps,
-                self.env.iteration_steps
-            )
-
+            self.screen.fill(self.colors['WHITE'])
+            self.draw_all()
             pygame.display.flip()
-            clock.tick(60)
 
         pygame.quit()
 
+    def draw_all(self):
+        # Grid and Agent
+        viz_states = self.visualization_section.get_states()
+        self.grid.draw(self.screen, **viz_states, current_alg=self.current_alg)
+
+        # Draw Sections
+        self.algorithm_section.draw(self.screen, self.WINDOW_SIZE)
+        self.visualization_section.draw(self.screen, self.WINDOW_SIZE, self.current_alg)
+        self.control_section.draw(self.screen, self.WINDOW_SIZE, self.current_alg)
+
     def handle_click(self, pos):
-        # 알고리즘 선택 처리
-        selected_alg = self.algorithm_section.handle_click(pos)
-        if selected_alg:
-            self.current_alg = selected_alg
-            self.notify_observers('algorithm_changed', {'algorithm': self.current_alg})
+        self.algorithm_section.handle_click(pos)
+        self.visualization_section.handle_click(pos, self.current_alg)
+        self.control_section.handle_click(pos, self.current_alg)
 
-        # 시각화 설정 처리
-        viz_update = self.visualization_section.handle_click(pos, [
-            self.visualization_section.show_rewards,
-            self.visualization_section.show_state_values,
-            self.visualization_section.show_action_values,
-            self.visualization_section.show_policy
-        ])
-        if viz_update:
-            self.notify_observers('visualization_changed', viz_update)
+    def show_toast(self, message, duration=1000):
+        toast_font = pygame.font.Font(None, 36)
+        toast_text = toast_font.render(message, True, self.colors['RED'])
+        toast_rect = toast_text.get_rect(center=(self.WINDOW_SIZE[0] // 2, self.WINDOW_SIZE[1] // 2))
 
-        # 알고리즘 제어 버튼 처리
-        control_action = self.control_section.handle_click(pos)
-        if control_action:
-            self.perform_control_action(control_action)
+        background_rect = pygame.Rect(toast_rect.left - 10, toast_rect.top - 10,
+                                      toast_rect.width + 20, toast_rect.height + 20)
+        pygame.draw.rect(self.screen, self.colors['WHITE'], background_rect)
 
-        # 에이전트 제어 버튼 처리
-        # 여기에 에이전트 제어 버튼 로직을 추가할 수 있습니다.
+        self.screen.blit(toast_text, toast_rect)
+        pygame.display.flip()
+        pygame.time.delay(duration)
 
-    def perform_control_action(self, action):
-        if action == 'Policy Evaluation':
-            if self.current_alg:
-                converged = self.current_alg.policy_evaluation_step()
-                self.env.evaluation_steps += 1
-                if converged:
-                    self.env.is_eval_converged = True
-                self.notify_observers('policy_evaluation', {
-                    'steps': self.env.evaluation_steps,
-                    'delta': self.current_alg.delta,
-                    'converged': converged
-                })
-        elif action == 'Policy Improvement':
-            if self.current_alg:
-                converged = self.current_alg.policy_improvement_step()
-                if converged:
-                    self.env.is_policy_converged = True
-                self.notify_observers('policy_improvement', {
-                    'converged': converged
-                })
-        elif action == 'Reset Algorithm':
-            if self.current_alg:
-                self.current_alg.reset()
-                self.env.evaluation_steps = 0
-                self.env.iteration_steps = 0
-                self.env.is_eval_converged = False
-                self.env.is_policy_converged = False
-                self.notify_observers('reset_algorithm')
-        elif action == 'Iterate one step':
-            if self.current_alg:
-                converged = self.current_alg.step()
-                self.env.iteration_steps += 1
-                if converged:
-                    self.env.is_policy_converged = True
-                self.notify_observers('algo_step', {
-                    'converged': converged
-                })
-        elif action == 'Generate Experience':
-            # Model-Free 알고리즘에 대한 경험 생성 로직을 여기에 추가할 수 있습니다.
-            pass
+    @property
+    def env(self):
+        return self._env
+
+    @env.setter
+    def env(self, environment):
+        self._env = environment
+
+    @property
+    def current_alg(self):
+        return self._current_alg
+
+    @current_alg.setter
+    def current_alg(self, alg):
+        self._current_alg = alg
+        self.algorithm_section.set_current_algorithm(alg)
