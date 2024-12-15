@@ -1,15 +1,28 @@
 import numpy as np
-from .base import GeneralizedPolicyIteration
+from rl_algorithms.core.algorithms.base import GeneralizedPolicyIteration
 
 class ValueIteration(GeneralizedPolicyIteration):
-    """Value Iteration algorithm implementation."""
+    """
+    Value Iteration algorithm implementation.
+
+    Inherits from GeneralizedPolicyIteration and overrides the policy evaluation
+    step to use the Bellman optimality update. This algorithm repeatedly updates
+    state values to the maximum Q-value over all actions until convergence.
+    """
 
     def policy_evaluation_step(self) -> float:
         """
         Perform a single value iteration step.
 
-        Returns:
-            float: Maximum value change during iteration
+        This method computes the Q-values for each state-action pair using the
+        Bellman optimality equation, then updates the state value to the maximum
+        Q-value over all actions. The maximum absolute difference (`delta`)
+        between old and updated values is returned as a convergence metric.
+
+        Returns
+        -------
+        float
+            The maximum value change (delta) across all states during this iteration step.
         """
         delta = 0
         old_values = self.values.copy()
@@ -42,22 +55,43 @@ class ValueIteration(GeneralizedPolicyIteration):
         """
         Improve policy based on current value estimates.
 
-        Returns:
-            bool: Whether the policy has converged
+        This method calls a greedy improvement procedure (`greedy_policy_improvement`)
+        which sets the action probability to 1 for the action with the highest Q-value,
+        and 0 otherwise.
+
+        Returns
+        -------
+        bool
+            True if the policy did not change (converged), False otherwise.
         """
         return self.greedy_policy_improvement()
 
     def __str__(self) -> str:
+        """
+        Returns a string representation of this algorithm.
+
+        Returns
+        -------
+        str
+            Name of the algorithm ("Value Iteration").
+        """
+
         return "Value Iteration"
 
     def select_action(self, state: int) -> int:
         """
-        Select greedy action based on current Q-values.
+        Select a greedy action based on the current Q-values.
 
-        Args:
-            state (int): Current state
+        Uses `select_greedy_action` to pick the action that maximizes Q(s,a).
 
-        Returns:
-            int: Selected action
+        Parameters
+        ----------
+        state : int
+            Current state index.
+
+        Returns
+        -------
+        int
+            The selected (greedy) action index.
         """
         return self.select_greedy_action(state)

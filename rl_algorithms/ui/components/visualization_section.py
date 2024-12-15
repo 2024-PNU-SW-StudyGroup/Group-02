@@ -2,7 +2,55 @@
 import pygame
 
 class VisualizationSection:
+    """
+    Handles the visualization controls for toggling various display elements in the Grid World environment.
+
+    Attributes
+    ----------
+    viz : object
+        The visualization object containing the environment and observers.
+    left : int
+        The left margin of the section.
+    top : int
+        The top margin of the section.
+    width : int
+        The width of the section.
+    font : pygame.font.Font
+        The font used for rendering text.
+    BLACK, WHITE, GREEN : tuple
+        RGB color values for rendering UI components.
+    title_rect : pygame.Rect
+        The rectangle for the section title.
+    buttons : list
+        A list of dictionaries representing buttons and their states.
+    show_rewards : bool
+        Whether to display rewards in the visualization.
+    show_state_values : bool
+        Whether to display state values in the visualization.
+    show_action_values : bool
+        Whether to display action values in the visualization.
+    show_policy : bool
+        Whether to display policy arrows in the visualization.
+    """
     def __init__(self, viz, left, top, width, font, colors):
+        """
+        Initializes the VisualizationSection.
+
+        Parameters
+        ----------
+        viz : object
+            The visualization object.
+        left : int
+            The left margin of the section.
+        top : int
+            The top margin of the section.
+        width : int
+            The width of the section.
+        font : pygame.font.Font
+            The font used for rendering text.
+        colors : dict
+            A dictionary of RGB color values for various UI components.
+        """
         self.viz = viz
         self.left = left
         self.top = top
@@ -27,6 +75,18 @@ class VisualizationSection:
         self.show_policy = False
 
     def draw(self, screen, window_size, current_alg):
+        """
+        Draws the visualization control section and its buttons.
+
+        Parameters
+        ----------
+        screen : pygame.Surface
+            The surface on which to draw.
+        window_size : tuple
+            The size of the window (width, height).
+        current_alg : object
+            The currently selected reinforcement learning algorithm.
+        """
         # Left edge
         pygame.draw.line(screen, self.BLACK, (self.left, 0),
                          (self.left, window_size[1]), 2)
@@ -47,6 +107,16 @@ class VisualizationSection:
             screen.blit(text, text_rect)
 
     def handle_click(self, pos, current_alg):
+        """
+        Handles mouse click events to toggle visualization options.
+
+        Parameters
+        ----------
+        pos : tuple
+            The (x, y) position of the mouse click.
+        current_alg : object
+            The currently selected reinforcement learning algorithm.
+        """
         for i, button in enumerate(self.buttons):
             if button['rect'].collidepoint(pos):
                 button['state'] = not button['state']
@@ -65,6 +135,14 @@ class VisualizationSection:
                 })
 
     def get_states(self):
+        """
+        Retrieves the current visualization states.
+
+        Returns
+        -------
+        dict
+            A dictionary of the current visualization states.
+        """
         return {
             'show_rewards': self.show_rewards,
             'show_state_values': self.show_state_values,
@@ -74,8 +152,14 @@ class VisualizationSection:
     
     def update_visualization(self, viz_type, state):
         """
-        옵저버가 'visualization_changed' 이벤트를 통지할 때 호출되는 메서드.
-        viz_type은 'Toggle Rewards', 'Toggle State Values' 등, state는 True/False.
+        Updates the visualization states based on an observer event.
+
+        Parameters
+        ----------
+        viz_type : str
+            The type of visualization to update ('Toggle Rewards', 'Toggle State Values', etc.).
+        state : bool
+            The new state (True/False) for the visualization type.
         """
         if viz_type == 'Toggle Rewards':
             self.show_rewards = state

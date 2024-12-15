@@ -39,15 +39,24 @@
 ## **프로젝트 구성**
 
 ```plaintext
-project_root/
-├── src/
+RL_GridWorld/
+├── rl_algorithms/
+│   ├── __init__.py
 │   ├── core/
 │   │   ├── algorithms/          # 강화학습 알고리즘 구현
-│   │   └── env/                 # Grid World 환경 정의
+│   │   ├── rl_env/              # Grid World 환경 정의
+│   │   ├── events.py            # 이벤트 정의
+│   │   └── __init__.py
 │   ├── ui/                      # UI 및 시각화 구현
 │   │   ├── components/          # UI 구성 요소
-│   │   └── observers/           # Observer 패턴 구현
-│   └── main.py                  # 프로젝트 실행 진입점
+│   │   ├── observers/           # Observer 패턴 구현
+│   │   ├── grid_world_viz.py    # 메인 UI 클래스
+│   │   └── __init__.py
+│   ├── main.py                  # 프로젝트 실행 진입점
+├── docs/                        # Sphinx 기반 문서화 파일
+│   ├── source/
+│   ├── build/
+│   └── conf.py
 ├── requirements.txt             # 프로젝트 의존성 관리
 └── README.md                    # 프로젝트 설명 파일
 ```
@@ -70,7 +79,7 @@ Python 3.8+가 설치되어 있어야 합니다.
 
 ### **2. 실행**
   ```bash
-  python src/main.py
+  python rl_algorithms/main.py
   ```
 ## **사용 방법**
 
@@ -96,4 +105,15 @@ Python 3.8+가 설치되어 있어야 합니다.
    - 알고리즘의 학습 진행 상태를 실시간으로 확인하여 디버깅 및 성능 분석을 용이하게 합니다.
 
 3. **교육 및 연구 도구로 활용:**
-   - 강의 자료, 워크샵, 연구 발표 등 다양한 교육 및 연구 목적으로 활용 가능합니다.
+   - 강의 자료, 멘토링, 연구 발표 등 다양한 교육 및 연구 목적으로 활용 가능합니다.
+
+## **향후 개발 계획**
+
+1. **추가 알고리즘 구현:**
+   - Q-Learning 및 Model-Free 알고리즘 추가.
+   
+2. **복잡한 환경 지원:**
+   - 더 큰 Grid World 및 다양한 장애물 배치 옵션 추가.
+   
+3. **학습 데이터 저장 및 시각화:**
+   - 학습 진행 상태를 기록하고, 학습 데이터 분석 도구 제공.
