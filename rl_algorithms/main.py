@@ -8,7 +8,7 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, BASE_DIR)
 
 # 프로젝트 구조에 맞추어 import
-from core.env.grid_world import GridWorld
+from core.rl_env.grid_world import GridWorld
 from core.algorithms.policy_iteration import PolicyIteration
 from core.algorithms.value_iteration import ValueIteration
 from ui.grid_world_viz import GridWorldViz

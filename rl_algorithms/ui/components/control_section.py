@@ -116,6 +116,27 @@ class ControlSection:
                 t_rect = t.get_rect(center=button['rect'].center)
                 screen.blit(t, t_rect)
 
+    # ---[새로 추가할 메서드들]---
+
+    def update_algorithm(self, algorithm):
+        """
+        UIUpdateObserver에서 algorithm_changed 이벤트가 발생했을 때 호출됨.
+        필요한 초기화나 상태 설정을 여기서 진행.
+        """
+        # 알고리즘 변경 시, 평가/개선 단계 및 수 convergence 상태를 초기화
+        self.evaluation_steps = 0
+        self.iteration_steps = 0
+        self.is_eval_converged = False
+        self.is_policy_converged = False
+
+    def update_evaluation(self, eval_data):
+        """
+        policy_evaluation 이벤트가 발생했을 때 옵저버에서 호출됨.
+        eval_data 예: {'steps': int, 'delta': float, 'converged': bool}
+        """
+        self.evaluation_steps = eval_data.get('steps', self.evaluation_steps)
+        # delta나 converged 상태를 UI에 반영할 수도 있음.
+
     def handle_click(self, pos, current_alg):
         # Algo control buttons
         for i, button in enumerate(self.algo_control_buttons):
@@ -142,6 +163,25 @@ class ControlSection:
                         self.move_agent(current_alg)
                     elif button['text'] == 'Reset Agent':
                         self.reset_agent(current_alg)
+
+    def update_algorithm(self, algorithm):
+        """
+        UIUpdateObserver에서 algorithm_changed 이벤트가 발생했을 때 호출됨.
+        필요한 초기화나 상태 설정을 여기서 진행.
+        """
+        # 알고리즘 변경 시, 평가/개선 단계 및 수 convergence 상태를 초기화
+        self.evaluation_steps = 0
+        self.iteration_steps = 0
+        self.is_eval_converged = False
+        self.is_policy_converged = False
+
+    def update_evaluation(self, eval_data):
+        """
+        policy_evaluation 이벤트가 발생했을 때 옵저버에서 호출됨.
+        eval_data 예: {'steps': int, 'delta': float, 'converged': bool}
+        """
+        self.evaluation_steps = eval_data.get('steps', self.evaluation_steps)
+        # delta나 converged 상태를 UI에 반영할 수도 있음.
 
     def policy_evaluation(self, current_alg):
         if self.is_eval_converged:

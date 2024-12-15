@@ -121,3 +121,12 @@ class GridComponent:
         agent_center = (agent_pos[1] * self.cell_size + self.cell_size // 2,
                         agent_pos[0] * self.cell_size + self.cell_size // 2)
         pygame.draw.circle(screen, self.BLUE, agent_center, self.cell_size//4)
+
+    def update_agent(self, agent_data):
+        """
+        agent_moved 이벤트 발생 시 호출.
+        agent_data 예: {'action': int, 'state': int, 'done': bool}
+        여기서는 굳이 할 일이 없을 수도 있지만, 
+        필요하다면 에이전트 위치나 시각화 상태를 업데이트 가능.
+        """
+        pass
