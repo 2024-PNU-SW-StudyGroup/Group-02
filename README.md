@@ -1,5 +1,5 @@
 # **Grid World Reinforcement Learning Visualizer**
-<img width="1440" alt="example" src="https://github.com/user-attachments/assets/39075e0f-7fd1-4c74-9cc6-9e8a311a6edb" />
+![gif-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/a23b5f2e-8963-4218-9f55-b69b055de992)
 
 ### **프로젝트 설명**
 `Grid World Reinforcement Learning Visualizer`는 **강화학습(Reinforcement Learning)** 알고리즘을 실시간으로 시각화하여 학습자와 연구자가 알고리즘의 내부 동작을 이해할 수 있도록 돕는 교육용 도구입니다.  
