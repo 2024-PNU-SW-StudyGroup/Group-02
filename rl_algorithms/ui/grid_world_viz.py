@@ -1,11 +1,11 @@
 # ui/grid_world_viz.py
 import pygame
-from ui.observers.base_observer import UIObserver
-from ui.observers.ui_update_observer import UIUpdateObserver
-from ui.components.algorithm_section import AlgorithmSection
-from ui.components.visualization_section import VisualizationSection
-from ui.components.control_section import ControlSection
-from ui.components.grid import GridComponent
+from rl_algorithms.ui.observers.base_observer import UIObserver
+from rl_algorithms.ui.observers.ui_update_observer import UIUpdateObserver
+from rl_algorithms.ui.components.algorithm_section import AlgorithmSection
+from rl_algorithms.ui.components.visualization_section import VisualizationSection
+from rl_algorithms.ui.components.control_section import ControlSection
+from rl_algorithms.ui.components.grid import GridComponent
 
 class GridWorldViz:
     """

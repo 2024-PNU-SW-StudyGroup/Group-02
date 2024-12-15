@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
-from core.rl_env.grid_world import GridWorld
+from rl_algorithms.core.rl_env.grid_world import GridWorld
 
 
 class RLAlgorithm(ABC):

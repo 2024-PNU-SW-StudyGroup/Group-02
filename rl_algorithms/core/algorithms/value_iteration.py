@@ -1,5 +1,5 @@
 import numpy as np
-from .base import GeneralizedPolicyIteration
+from rl_algorithms.core.algorithms.base import GeneralizedPolicyIteration
 
 class ValueIteration(GeneralizedPolicyIteration):
     """

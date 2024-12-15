@@ -1,7 +1,7 @@
 # ui/components/control_section.py
 import pygame
-from core.algorithms.policy_iteration import PolicyIteration
-from core.algorithms.value_iteration import ValueIteration
+from rl_algorithms.core.algorithms.policy_iteration import PolicyIteration
+from rl_algorithms.core.algorithms.value_iteration import ValueIteration
 
 class ControlSection:
     """
