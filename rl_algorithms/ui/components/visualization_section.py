@@ -71,3 +71,18 @@ class VisualizationSection:
             'show_action_values': self.show_action_values,
             'show_policy': self.show_policy
         }
+    
+    def update_visualization(self, viz_type, state):
+        """
+        옵저버가 'visualization_changed' 이벤트를 통지할 때 호출되는 메서드.
+        viz_type은 'Toggle Rewards', 'Toggle State Values' 등, state는 True/False.
+        """
+        if viz_type == 'Toggle Rewards':
+            self.show_rewards = state
+        elif viz_type == 'Toggle State Values':
+            self.show_state_values = state
+        elif viz_type == 'Toggle Action Values':
+            self.show_action_values = state
+        elif viz_type == 'Toggle Policy Arrows':
+            self.show_policy = state
+        # 필요한 경우 추가 UI 업데이트 로직 삽입
