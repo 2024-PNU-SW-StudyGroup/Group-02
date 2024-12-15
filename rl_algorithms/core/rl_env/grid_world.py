@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class GridWorld:
     def __init__(self, size=7, seed=42):
         # Set random seed
